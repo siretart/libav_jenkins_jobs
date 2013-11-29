@@ -1,0 +1,74 @@
+- defaults:
+    name: global
+    description: 'Do not edit this job through the web!'
+    node: master
+    logrotate:
+      numToKeep: 5
+
+- job:
+    name: libav-master-tarball
+    project-type: freestyle
+    defaults: global
+    display-name: 'Libav master (tarball)'
+
+    triggers:
+      - pollscm: "H/15 * * * *"
+
+    scm:
+      - git:
+          url: git://git.libav.org/libav.git
+          branches: 
+            - "master"
+          basedir: "libav"
+
+    builders:
+      - shell: |
+          rm -f libav-*.tar.* *.release *.changelog *.md5 *.sha1
+          cd libav
+          VERSION="`cat RELEASE`"
+          echo $VERSION > VERSION
+          git add VERSION
+          git commit VERSION -m"Add VERSION file for standalone builds"
+          git archive -v \
+            --prefix="libav-$VERSION/" \
+            -o ../libav-"${VERSION}".tar.gz \
+            HEAD
+          cp -v Changelog ../libav-"${VERSION}".changelog
+          cp -v doc/RELEASE_NOTES ../libav-"${VERSION}".release
+          zcat ../libav-"${VERSION}".tar.gz | xz > ../libav-"${VERSION}".tar.xz
+      - shell: |
+          for f in *.tar.gz *.tar.xz; do
+            md5sum $f > $f.md5
+            sha1sum $f > $f.sha1
+          done
+              
+    publishers:
+      - archive:
+          artifacts: 'libav-*.*'
+      - trigger:
+          project: libav-master-doxygen
+
+- job:
+    name: libav-master-doxygen
+    project-type: freestyle
+    defaults: global
+    display-name: 'Libav master (doxygen)'
+
+    builders:
+      - copyartifact:
+          project: libav-master-tarball
+          files: '*.tar.gz'
+          
+      - shell: |
+          tar xvf *.tar.xz
+          rm -rf build
+          mkdir build
+          cd build
+          ../*/configure
+          make apidoc
+      
+    publishers:
+      - html-publisher:
+          name: doxygen
+          dir: "build/doc/doxy/html"
+          files: "index.html"
