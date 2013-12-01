@@ -72,6 +72,7 @@
           files: '*.tar.gz'
           
       - shell: | 
+          rm libav-*.7z
           tar xvf *.tar.xz
           rm *.tar.xz
           cd libav-*
@@ -84,24 +85,17 @@
              ROOT=/usr/i686-w64-mingw32/
              CONFIG="--cross-prefix=i686-w64-mingw32- --arch=i686 --sysroot=${ROOT} $COMMON_CONFIG"
           elif [[ $FLAVOR == "win64" ]]; then
-
              ROOT=/usr/x86_64-w64-mingw32/
              CONFIG="--cross-prefix=x86_64-w64-mingw32- --arch=x86_64 --sysroot=${ROOT} $COMMON_CONFIG"
-
           elif [[ $FLAVOR == "win32-pthreads" ]]; then
-
              ROOT=/usr/i686-w64-mingw32/
              CONFIG="--cross-prefix=i686-w64-mingw32- --arch=i686 --target-os=mingw32 --sysroot=${ROOT} $COMMON_CONFIG"
-
           elif [[ $FLAVOR == "win64-pthreads" ]]; then
-
              ROOT=/usr/x86_64-w64-mingw32/
              CONFIG="--cross-prefix=x86_64-w64-mingw32- --arch=x86_64 --sysroot=${ROOT} $COMMON_CONFIG"
           else
-
             echo "Unsupported configuration: $FLAVOR"
             exit 1
-
           fi
 
           VERSION=`cat VERSION`
