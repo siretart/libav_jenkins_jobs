@@ -7,10 +7,13 @@ wget -q -O - http://pkg.jenkins-ci.org/debian-stable/jenkins-ci.org.key | sudo a
 echo "deb http://pkg.jenkins-ci.org/debian-stable binary/" > /etc/apt/sources.list.d/jenkins.list
 
 apt-get update -qq
-apt-get install -y vim emacs23-nox curl python-software-properties build-essential
 apt-get install -y jenkins
-apt-get install -y git libyaml-dev
-apt-get install -y python-virtualenv
+apt-get install -y yasm build-essential
+apt-get install -y python-virtualenv python-pip git libyaml-dev python-dev
+
+pip install --upgrade jenkins-job-builder
+
+jenkins-jobs --conf /vagrant/jenkins_jobs/jenkins_jobs.ini update /vagrant/jenkins_jobs
 
 SCRIPT
 
