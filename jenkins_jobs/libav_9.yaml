@@ -47,6 +47,8 @@
     publishers:
       - archive:
           artifacts: 'libav-*.*'
+      - trigger:
+          project: libav-9-win
 
 - job:
     name: libav-9-win
