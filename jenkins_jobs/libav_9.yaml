@@ -72,7 +72,7 @@
           files: '*.tar.gz'
           
       - shell: | 
-          rm libav-*.7z
+          rm -f libav-*.7z
           tar xvf *.tar.xz
           rm *.tar.xz
           cd libav-*
