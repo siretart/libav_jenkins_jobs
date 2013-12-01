@@ -3,7 +3,7 @@
     description: 'Do not edit this job through the web!'
     node: master
     logrotate:
-      numToKeep: 5
+      numToKeep: 10
 
 - job:
     name: libav-master-tarball
@@ -19,6 +19,8 @@
           url: git://git.libav.org/libav.git
           branches: 
             - "master"
+          browser: gitweb
+          browser-url: http://git.libav.org/?p=libav.git
           basedir: "libav"
 
     builders:
