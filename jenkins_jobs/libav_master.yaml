@@ -57,6 +57,9 @@
     display-name: 'Libav master (doxygen)'
 
     builders:
+      - shell: |
+          rm -rf *.tar.xz
+
       - copyartifact:
           project: libav-master-tarball
           files: '*.tar.gz'
