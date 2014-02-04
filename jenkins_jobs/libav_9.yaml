@@ -66,9 +66,13 @@
           values:
             - win32
             - win64
+
     builders:
+      - shell: | 
+          rm *.tar.*
+
       - copyartifact:
-          project: libav-master-tarball
+          project: libav-9-tarball
           files: '*.tar.gz'
           
       - shell: | 
