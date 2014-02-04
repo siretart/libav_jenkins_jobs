@@ -49,6 +49,38 @@
           artifacts: 'libav-*.*'
       - trigger:
           project: libav-9-win
+      - trigger:
+          project: libav-9-fate
+
+
+- job:
+    name: libav-9-fate
+    project-tye: matrix
+    display-name: 'Libav 9 (fate)'
+    axes:
+      - axis:
+          type: slave
+          name: label
+          values:
+            - s11-amd64
+
+    builders:
+      - shell: |
+          rm -f *.tar.*
+
+      - copyartifact:
+          project: libav-9-tarball
+          files: '*.tar.gz'
+          
+      - shell: | 
+          tar xvf *.tar.gz
+          mkdir -p ../fate-samples
+          cd libav-*
+          ./configure --enable-gpl
+          make fate-rsync SAMPLES=$(readlink -f ../fate-samples)
+          make
+          make fate SAMPLES=$(readlink -f ../fate-samples)
+
 
 - job:
     name: libav-9-win
