@@ -51,6 +51,34 @@
           project: libav-0.8-win
 
 - job:
+    name: libav-0.8-fate
+    project-tye: matrix
+    display-name: 'Libav 0.8 (fate)'
+    axes:
+      - axis:
+          type: slave
+          name: label
+          values:
+            - s11-amd64
+
+    builders:
+      - shell: |
+          rm -f *.tar.*
+
+      - copyartifact:
+          project: libav-0.8-tarball
+          files: '*.tar.gz'
+          
+      - shell: | 
+          tar xvf *.tar.gz
+          mkdir -p ../fate-samples
+          cd libav-*
+          ./configure --enable-gpl
+          make fate-rsync SAMPLES=$(readlink -f ../fate-samples)
+          make
+          make fate SAMPLES=$(readlink -f ../fate-samples)
+
+- job:
     name: libav-0.8-win
     project-type: matrix
     display-name: 'Libav 0.8 (windows binaries)'
@@ -69,7 +97,7 @@
 
     builders:
       - shell: | 
-          rm *.tar.*
+          rm -f *.tar.*
 
       - copyartifact:
           project: libav-0.8-tarball
