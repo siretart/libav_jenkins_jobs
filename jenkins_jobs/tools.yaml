@@ -1,0 +1,80 @@
+- defaults:
+    name: global
+    description: 'Do not edit this job through the web!'
+    node: master
+    logrotate:
+      numToKeep: 10
+
+- job:
+    name: yasm-sol
+    project-type: freestyle
+    defaults: global
+    display-name: 'yasm (Solaris binaries)'
+    node: solaris
+
+    triggers:
+      - pollscm: "@weekly"
+
+    scm:
+      - git:
+          url: git://github.com/yasm/yasm.git
+          refspec: '+refs/heads/master:refs/remotes/origin/master'
+          branches:
+            - "*/master"
+
+    builders:
+      - shell: |
+          set -e
+
+          umask 0022
+
+          PATH=/usr/bin:/bin
+          LC_ALL=C
+          export PATH LC_ALL
+
+          test -d /usr/xpg4/bin && PATH=/usr/xpg4/bin:$PATH
+
+          rm -f yasm*.tar.*
+
+          PREFIX=/usr
+
+          SRCROOT=$(pwd)
+          ${SRCROOT}/autogen.sh --prefix=${PREFIX}
+
+          chmod u+x ${SRCROOT}/config/config.{guess,sub}
+
+          host=$(${SRCROOT}/config/config.guess)
+          host=$(${SRCROOT}/config/config.sub $host)
+          OSVER=${host##*-}
+
+          CC=${CC:-$(which gcc)}
+
+          DESTBASE=${TMPDIR:-/var/tmp}
+          DESTDIR="${DESTBASE}/yasm-$OSVER"
+
+          export CC
+
+          nproc=$(/usr/bin/kstat -p :::state | grep 'on-line' | wc -l | sed 's/ //g')
+
+          gmake -j ${nproc}
+          gmake -j ${nproc} check
+          gmake DESTDIR=$DESTDIR install
+
+          gmake clean
+
+          VERSION=$(cat ${SRCROOT}/YASM-VERSION-FILE)
+          NAME=yasm-$VERSION-$OSVER
+
+          gtar -C ${DESTBASE} -cvf ${SRCROOT}/$NAME.tar $(basename ${DESTDIR})
+          xz ${SRCROOT}/$NAME.tar
+          rm -rf ${DESTDIR}
+
+      - shell: |
+          for f in *.tar.xz; do
+            md5sum $f > $f.md5
+            sha1sum $f > $f.sha1
+          done
+
+    publishers:
+      - archive:
+          artifacts: 'yasm*.tar.*'
