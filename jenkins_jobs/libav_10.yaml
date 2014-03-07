@@ -64,6 +64,7 @@
           values:
             - macmini
             - solaris11
+            - master
 
     builders:
       - shell: |

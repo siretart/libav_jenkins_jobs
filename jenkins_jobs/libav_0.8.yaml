@@ -59,7 +59,9 @@
           type: slave
           name: label
           values:
-            - s11-amd64
+            - macmini
+            - solaris11
+            - master
 
     builders:
       - shell: |
