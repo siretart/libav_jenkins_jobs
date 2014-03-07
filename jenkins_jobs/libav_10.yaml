@@ -55,7 +55,7 @@
 
 - job:
     name: libav-10-fate
-    project-tye: matrix
+    project-type: matrix
     display-name: 'Libav 10 (fate)'
     axes:
       - axis:

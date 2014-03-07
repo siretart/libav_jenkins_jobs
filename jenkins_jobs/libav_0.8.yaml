@@ -52,7 +52,7 @@
 
 - job:
     name: libav-0.8-fate
-    project-tye: matrix
+    project-type: matrix
     display-name: 'Libav 0.8 (fate)'
     axes:
       - axis:
