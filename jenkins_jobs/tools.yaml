@@ -38,6 +38,9 @@
 
           PREFIX=/usr
 
+          CC=${CC:-$(which gcc)}
+          export CC
+
           SRCROOT=$(pwd)
           ${SRCROOT}/autogen.sh --prefix=${PREFIX}
 
@@ -47,12 +50,8 @@
           host=$(${SRCROOT}/config/config.sub $host)
           OSVER=${host##*-}
 
-          CC=${CC:-$(which gcc)}
-
           DESTBASE=${TMPDIR:-/var/tmp}
           DESTDIR="${DESTBASE}/yasm-$OSVER"
-
-          export CC
 
           nproc=$(/usr/bin/kstat -p :::state | grep 'on-line' | wc -l | sed 's/ //g')
 
