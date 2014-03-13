@@ -59,7 +59,7 @@
     builders:
       - shell: |
           rm -rf *.tar.xz
-          find . -type d -iname 'libav-*' -exec rm -rf {} \;
+          find . -type d -iname 'libav-*' -exec rm -rf {} \\;
 
       - copyartifact:
           project: libav-master-tarball
