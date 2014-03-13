@@ -87,7 +87,6 @@
 - job:
     name: libav-9-win
     project-type: matrix
-    disabled: true
     display-name: 'Libav 9 (windows binaries)'
     axes:
       - axis:
@@ -104,7 +103,7 @@
 
     builders:
       - shell: | 
-          rm *.tar.*
+          rm -f *.tar.*
 
       - copyartifact:
           project: libav-9-tarball

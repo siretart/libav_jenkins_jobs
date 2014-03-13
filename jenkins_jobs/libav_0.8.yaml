@@ -82,7 +82,6 @@
 
 - job:
     name: libav-0.8-win
-    disabled: true
     project-type: matrix
     display-name: 'Libav 0.8 (windows binaries)'
     axes:
