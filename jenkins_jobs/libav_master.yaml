@@ -59,7 +59,7 @@
     builders:
       - shell: |
           rm -rf *.tar.xz
-          find . -type d -iname 'libav-*' -exec rm -rf {} \\;
+          for dir in `find $(pwd) -type d -iname 'libav-*'`; do rm -rf $dir; done
 
       - copyartifact:
           project: libav-master-tarball
