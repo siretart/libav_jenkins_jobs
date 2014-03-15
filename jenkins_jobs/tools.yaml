@@ -84,3 +84,79 @@
     publishers:
       - archive:
           artifacts: 'yasm*.tar.*'
+
+- job:
+    name: yasm-osx
+    project-type: freestyle
+    defaults: global
+    display-name: 'yasm (MacOS X binaries)'
+    node: mavericks
+
+    triggers:
+      - pollscm: "@weekly"
+
+    scm:
+      - git:
+          url: git://github.com/yasm/yasm.git
+          refspec: '+refs/heads/master:refs/remotes/origin/master'
+          branches:
+            - "*/master"
+
+    builders:
+      - shell: |
+          umask 0022
+
+          PATH=/usr/bin:/bin
+          LC_ALL=C
+          export PATH LC_ALL
+
+          rm -f yasm*.tar.*
+
+          PREFIX=/usr
+
+          CC=${CC:-/usr/bin/cc}
+          export CC
+
+          SRCROOT=$(pwd)
+          ${SRCROOT}/autogen.sh --prefix=${PREFIX}
+
+          chmod u+x ${SRCROOT}/config/config.{guess,sub}
+
+          host=$(${SRCROOT}/config/config.guess)
+          host=$(${SRCROOT}/config/config.sub $host)
+          OSVER=${host##*-}
+
+          DESTBASE=${TMPDIR:-/var/tmp}
+          DESTDIR="${DESTBASE}/yasm-$OSVER"
+
+          nproc=$(/usr/sbin/sysctl hw.availcpu | awk '{print $3}')
+
+          make -j ${nproc}
+          make -j ${nproc} check
+          make DESTDIR=$DESTDIR install
+
+          make clean
+
+          VERSION=$(cat ${SRCROOT}/YASM-VERSION-FILE)
+          NAME=yasm-$VERSION-$OSVER
+
+          tar -C ${DESTBASE} -cvf ${SRCROOT}/$NAME.tar $(basename ${DESTDIR})
+          gzip ${SRCROOT}/$NAME.tar
+          rm -rf ${DESTDIR}
+
+      - shell: |
+          umask 0022
+
+          PATH=/usr/bin:/bin:/sbin
+          LC_ALL=C
+
+          export PATH LC_ALL
+
+          for f in *.tar.gz; do
+            md5 -r $f > $f.md5
+            shasum -a 1 $f > $f.sha1
+          done
+
+    publishers:
+      - archive:
+          artifacts: 'yasm*.tar.*'
