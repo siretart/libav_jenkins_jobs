@@ -28,9 +28,10 @@
 
           PATH=/usr/bin:/bin
           LC_ALL=C
-          export PATH LC_ALL
 
           test -d /usr/xpg4/bin && PATH=/usr/xpg4/bin:$PATH
+
+          export PATH LC_ALL
 
           rm -f yasm*.tar.*
 
