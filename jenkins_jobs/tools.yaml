@@ -68,6 +68,14 @@
           rm -rf ${DESTDIR}
 
       - shell: |
+          umask 0022
+
+          PATH=/usr/bin:/bin
+          test -d /usr/xpg4/bin && PATH=/usr/xpg4/bin:$PATH
+          LC_ALL=C
+
+          export PATH LC_ALL
+
           for f in *.tar.xz; do
             md5sum $f > $f.md5
             sha1sum $f > $f.sha1
