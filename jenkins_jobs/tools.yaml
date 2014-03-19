@@ -110,6 +110,54 @@
           LC_ALL=C
           export PATH LC_ALL
 
+          SRCROOT=$(pwd)
+
+          GNU=http://ftp.gnu.org/gnu
+
+          AUTOCONF_VERSION=2.69
+          AUTOCONF_URL=${GNU}/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz
+
+          AUTOMAKE_VERSION=1.11.6
+          AUTOMAKE_URL=${GNU}/automake/automake-${AUTOMAKE_VERSION}.tar.gz
+
+          URLS="$AUTOCONF_URL $AUTOMAKE_URL"
+
+          for url in $URLS
+          do
+            curl -f -L -R -O "$url"
+          done
+
+          mkdir -p ${SRCROOT}/build
+
+          cd ${SRCROOT}/build
+          tar xvf ../autoconf-${AUTOCONF_VERSION}.tar.gz
+          cd autoconf-${AUTOCONF_VERSION}
+          $(pwd)/configure --prefix=${SRCROOT}/build
+          make
+          make install
+          cd ${SRCROOT}/build
+          rm -rf autoconf-${AUTOCONF_VERSION}
+
+          cd ${SRCROOT}/build
+          export PATH=$(pwd)/bin:$PATH
+          tar xvf ../automake-${AUTOMAKE_VERSION}.tar.gz
+          cd autoconf-${AUTOMAKE_VERSION}
+          $(pwd)/configure --prefix=${SRCROOT}/build
+          make
+          make install
+          cd ${SRCROOT}/build
+          rm -rf automake-${AUTOMAKE_VERSION}
+
+      - shell: |
+          umask 0022
+
+          SRCROOT=$(pwd)
+
+          PATH=/usr/bin:/bin
+          test -d ${SRCROOT}/build/bin && PATH=${SRCROOT}/build/bin:$PATH
+          LC_ALL=C
+          export PATH LC_ALL
+
           rm -f yasm*.tar.*
 
           PREFIX=/usr
@@ -117,7 +165,6 @@
           CC=${CC:-/usr/bin/cc}
           export CC
 
-          SRCROOT=$(pwd)
           ${SRCROOT}/autogen.sh --prefix=${PREFIX}
 
           chmod u+x ${SRCROOT}/config/config.{guess,sub}
