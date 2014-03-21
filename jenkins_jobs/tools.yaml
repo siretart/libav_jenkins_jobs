@@ -141,7 +141,7 @@
           cd ${SRCROOT}/build
           export PATH=$(pwd)/bin:$PATH
           tar xvf ../automake-${AUTOMAKE_VERSION}.tar.gz
-          cd autoconf-${AUTOMAKE_VERSION}
+          cd automake-${AUTOMAKE_VERSION}
           $(pwd)/configure --prefix=${SRCROOT}/build
           make
           make install
