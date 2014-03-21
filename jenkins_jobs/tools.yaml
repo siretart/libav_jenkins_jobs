@@ -145,6 +145,8 @@
           $(pwd)/configure --prefix=${SRCROOT}/build
           make
           make install
+          # add share/aclocal to keep automake happy
+          mkdir -p ${SRCROOT}/build/share/aclocal
           cd ${SRCROOT}/build
           rm -rf automake-${AUTOMAKE_VERSION}
 
