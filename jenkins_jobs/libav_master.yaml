@@ -63,7 +63,7 @@
 
       - copyartifact:
           project: libav-master-tarball
-          files: '*.tar.gz'
+          filter: '*.tar.gz'
           
       - shell: |
           tar xvf *.tar.xz

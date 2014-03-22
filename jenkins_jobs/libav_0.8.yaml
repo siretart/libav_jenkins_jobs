@@ -69,7 +69,7 @@
 
       - copyartifact:
           project: libav-0.8-tarball
-          files: '*.tar.gz'
+          filter: '*.tar.gz'
           
       - shell: | 
           GNU_TAR=${GNU_TAR:-tar}
@@ -104,7 +104,7 @@
 
       - copyartifact:
           project: libav-0.8-tarball
-          files: '*.tar.gz'
+          filter: '*.tar.gz'
           
       - shell: | 
           rm -f libav-*.7z
