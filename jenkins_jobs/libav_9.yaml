@@ -108,7 +108,7 @@
 
       - copyartifact:
           project: libav-9-tarball
-          filter: '*.tar.gz'
+          filter: '*.tar.xz'
           
       - shell: | 
           rm -f libav-*.7z
