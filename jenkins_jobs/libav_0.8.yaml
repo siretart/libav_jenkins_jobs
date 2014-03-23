@@ -74,9 +74,9 @@
       - shell: | 
           GNU_TAR=${GNU_TAR:-tar}
           ${GNU_TAR} xvf *.tar.gz
-          mkdir -p ../fate-samples
           cd libav-*
           ./configure --enable-gpl
+          mkdir -p ../fate-samples
           make fate-rsync SAMPLES=$(readlink -f ../fate-samples)
           make
           make fate SAMPLES=$(readlink -f ../fate-samples)
