@@ -73,8 +73,24 @@
       - copyartifact:
           project: libav-0.8-tarball
           filter: '*.tar.gz'
+
+      - conditional-step:
+          condition-kind: shell
+          condition-command: test `uname -s` == 'Darwin'
+          on-evaluation-failure: mark-unstable
+          steps:
+              - copyartifact:
+                  project: yasm-osx
+                  filter: '*.tar.gz'
+              - shell: |
+                  GNU_TAR=${GNU_TAR:-tar}
+                  mkdir -p ${WORKSPACE}/build
+                  cd ${WORKSPACE}/build
+                  gzip -dc yasm-*-darwin*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
           
       - shell: | 
+          test -d ${WORKSPACE}/build/bin && PATH=${WORKSPACE}/build/bin:$PATH
+          export PATH
           GNU_TAR=${GNU_TAR:-tar}
           MAKE=${MAKE:-make}
           mkdir -p libav
