@@ -75,13 +75,14 @@
           
       - shell: | 
           GNU_TAR=${GNU_TAR:-tar}
+          MAKE=${MAKE:-make}
           ${GNU_TAR} xvf *.tar.gz
           cd libav-*
           ./configure --enable-gpl
           mkdir -p ../fate-samples
-          make fate-rsync SAMPLES=$(readlink -f ../fate-samples)
-          make
-          make fate SAMPLES=$(readlink -f ../fate-samples)
+          ${MAKE} fate-rsync SAMPLES=$(readlink -f ../fate-samples)
+          ${MAKE}
+          ${MAKE} fate SAMPLES=$(readlink -f ../fate-samples)
 
 - job:
     name: libav-0.8-win
