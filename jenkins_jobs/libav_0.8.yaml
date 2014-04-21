@@ -49,6 +49,8 @@
           artifacts: 'libav-*.*'
       - trigger:
           project: libav-0.8-win
+      - trigger:
+          project: libav-0.8-fate
 
 - job:
     name: libav-0.8-fate
