@@ -69,6 +69,7 @@
     builders:
       - shell: |
           rm -f *.tar.*
+          rm -rf libav
 
       - copyartifact:
           project: libav-9-tarball
@@ -77,8 +78,9 @@
       - shell: | 
           GNU_TAR=${GNU_TAR:-tar}
           MAKE=${MAKE:-make}
-          ${GNU_TAR} xvf *.tar.gz
-          cd libav-*
+          mkdir -p libav
+          ${GNU_TAR} --strip-components=1 -C libav -xvf *.tar.gz
+          cd libav
           ./configure --enable-gpl
           mkdir -p ../fate-samples
           ${MAKE} fate-rsync SAMPLES=$(readlink -f ../fate-samples)
