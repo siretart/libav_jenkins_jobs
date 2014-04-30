@@ -76,7 +76,7 @@
 
           export PATH LC_ALL
 
-          for f in *.tar.xz; do
+          for f in yasm*.tar.xz; do
             md5sum $f > $f.md5
             sha1sum $f > $f.sha1
           done
@@ -201,7 +201,7 @@
 
           export PATH LC_ALL
 
-          for f in *.tar.gz; do
+          for f in yasm*.tar.gz; do
             md5 -r $f > $f.md5
             shasum -a 1 $f > $f.sha1
           done
