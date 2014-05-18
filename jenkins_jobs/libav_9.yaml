@@ -87,7 +87,7 @@
                   GNU_TAR=${GNU_TAR:-tar}
                   mkdir -p ${WORKSPACE}/build
                   cd ${WORKSPACE}/build
-                  gzip -dc yasm-*-darwin*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
+                  gzip -dc ${WORKSPACE}/yasm-*-darwin*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
 
       - shell: | 
           test -d ${WORKSPACE}/build/bin && PATH=${WORKSPACE}/build/bin:$PATH
