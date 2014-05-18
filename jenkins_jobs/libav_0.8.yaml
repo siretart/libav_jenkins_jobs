@@ -94,7 +94,7 @@
           GNU_TAR=${GNU_TAR:-tar}
           MAKE=${MAKE:-make}
           mkdir -p libav
-          ${GNU_TAR} --strip-components=1 -C libav -xvf *.tar.gz
+          ${GNU_TAR} --strip-components=1 -C libav -xvf libav*.tar.gz
           cd libav
           ./configure --enable-gpl $(u=`uname -s`; if test $u = SunOS; then echo --extra-libs=/usr/lib/values-xpg6.o; fi)
           mkdir -p ../fate-samples
