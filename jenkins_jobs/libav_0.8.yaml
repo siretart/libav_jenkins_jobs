@@ -122,6 +122,7 @@
     builders:
       - shell: | 
           rm -f *.tar.*
+          rm -rf libav-*
 
       - copyartifact:
           project: libav-0.8-tarball
