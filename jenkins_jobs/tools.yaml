@@ -41,7 +41,7 @@
           export CC
 
           SRCROOT=$(pwd)
-          ${SRCROOT}/autogen.sh --prefix=${PREFIX}
+          ${SRCROOT}/autogen.sh --prefix=${PREFIX} CPPFLAGS='-D__EXTENSIONS__'
 
           chmod u+x ${SRCROOT}/config/config.{guess,sub}
 
