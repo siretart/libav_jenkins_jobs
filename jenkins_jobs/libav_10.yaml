@@ -89,6 +89,20 @@
                   cd ${WORKSPACE}/build
                   gzip -dc ${WORKSPACE}/yasm-*-darwin*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
 
+      - conditional-step:
+          condition-kind: shell
+          condition-command: test `uname -s` == 'SunOS'
+          on-evaluation-failure: mark-unstable
+          steps:
+              - copyartifact:
+                  project: yasm-sol
+                  filter: '*.tar.gz'
+              - shell: |
+                  GNU_TAR=${GNU_TAR:-gtar}
+                  mkdir -p ${WORKSPACE}/build
+                  cd ${WORKSPACE}/build
+                  gzip -dc ${WORKSPACE}/yasm-*-solaris*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
+
       - shell: | 
           test -d ${WORKSPACE}/build/bin && PATH=${WORKSPACE}/build/bin:$PATH
           export PATH
