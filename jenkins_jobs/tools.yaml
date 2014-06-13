@@ -65,8 +65,9 @@
           VERSION=$(cat ${SRCROOT}/YASM-VERSION-FILE)
           NAME=yasm-$VERSION-$OSVER
 
-          gtar -C ${DESTBASE} -cvf ${SRCROOT}/$NAME.tar $(basename ${DESTDIR})
+          ${GNU_TAR:-gtar} -C ${DESTBASE} -cvf ${SRCROOT}/$NAME.tar $(basename ${DESTDIR})
           xz ${SRCROOT}/$NAME.tar
+          xzcat ${SRCROOT}/$NAME.tar.xz | gzip > ${SRCROOT}/$NAME.tar.gz
           rm -rf ${DESTDIR}
 
       - shell: |
@@ -78,7 +79,7 @@
 
           export PATH LC_ALL
 
-          for f in yasm*-solaris*.tar.xz; do
+          for f in yasm*-solaris*.tar.{xz,gz}; do
             md5sum $f > $f.md5
             sha1sum $f > $f.sha1
           done
