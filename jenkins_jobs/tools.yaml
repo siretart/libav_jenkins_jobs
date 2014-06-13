@@ -52,7 +52,7 @@
           DESTBASE=${TMPDIR:-/var/tmp}
           DESTDIR="${DESTBASE}/yasm-$OSVER"
 
-          nproc=$(/usr/bin/kstat -p :::state | grep 'on-line' | wc -l | sed 's/ //g')
+          nproc=$(/usr/bin/kstat -p :::state | grep 'on-line$' | wc -l | sed 's/ //g')
 
           gmake -j ${nproc}
           gmake -j ${nproc} check
