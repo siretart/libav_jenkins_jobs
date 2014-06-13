@@ -54,11 +54,13 @@
 
           nproc=$(/usr/bin/kstat -p :::state | grep 'on-line$' | wc -l | sed 's/ //g')
 
-          gmake -j ${nproc}
-          gmake -j ${nproc} check
-          gmake DESTDIR=$DESTDIR install
+          MAKE=${MAKE:-gmake}
 
-          gmake clean
+          ${MAKE} -j ${nproc}
+          ${MAKE} -j ${nproc} check
+          ${MAKE} DESTDIR=$DESTDIR install
+
+          ${MAKE} clean
 
           VERSION=$(cat ${SRCROOT}/YASM-VERSION-FILE)
           NAME=yasm-$VERSION-$OSVER
@@ -127,14 +129,16 @@
             curl -f -L -R -O "$url"
           done
 
+          MAKE=${MAKE:-make}
+
           mkdir -p ${SRCROOT}/build
 
           cd ${SRCROOT}/build
           tar xvf ../autoconf-${AUTOCONF_VERSION}.tar.gz
           cd autoconf-${AUTOCONF_VERSION}
           $(pwd)/configure --prefix=${SRCROOT}/build
-          make
-          make install
+          ${MAKE}
+          ${MAKE} install
           cd ${SRCROOT}/build
           rm -rf autoconf-${AUTOCONF_VERSION}
 
@@ -143,8 +147,8 @@
           tar xvf ../automake-${AUTOMAKE_VERSION}.tar.gz
           cd automake-${AUTOMAKE_VERSION}
           $(pwd)/configure --prefix=${SRCROOT}/build
-          make
-          make install
+          ${MAKE}
+          ${MAKE} install
           # add share/aclocal to keep automake happy
           mkdir -p ${SRCROOT}/build/share/aclocal
           cd ${SRCROOT}/build
@@ -164,6 +168,7 @@
 
           PREFIX=/usr
 
+          MAKE=${MAKE:-make}
           CC=${CC:-/usr/bin/cc}
           export CC
 
@@ -180,11 +185,11 @@
 
           nproc=$(/usr/sbin/sysctl hw.availcpu | awk '{print $3}')
 
-          make -j ${nproc}
-          make -j ${nproc} check
-          make DESTDIR=$DESTDIR install
+          ${MAKE} -j ${nproc}
+          ${MAKE} -j ${nproc} check
+          ${MAKE} DESTDIR=$DESTDIR install
 
-          make clean
+          ${MAKE} clean
 
           VERSION=$(cat ${SRCROOT}/YASM-VERSION-FILE)
           NAME=yasm-$VERSION-$OSVER
