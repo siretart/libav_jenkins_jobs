@@ -78,14 +78,14 @@
 
           export PATH LC_ALL
 
-          for f in yasm*.tar.xz; do
+          for f in yasm*-solaris*.tar.xz; do
             md5sum $f > $f.md5
             sha1sum $f > $f.sha1
           done
 
     publishers:
       - archive:
-          artifacts: 'yasm*.tar.*'
+          artifacts: 'yasm*-solaris*.tar.*'
 
 - job:
     name: yasm-osx
@@ -206,11 +206,11 @@
 
           export PATH LC_ALL
 
-          for f in yasm*.tar.gz; do
+          for f in yasm*-darwin*.tar.gz; do
             md5 -r $f > $f.md5
             shasum -a 1 $f > $f.sha1
           done
 
     publishers:
       - archive:
-          artifacts: 'yasm*.tar.*'
+          artifacts: 'yasm*-darwin*.tar.*'
