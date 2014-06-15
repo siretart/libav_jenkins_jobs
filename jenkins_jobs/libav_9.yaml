@@ -104,6 +104,7 @@
                   gzip -dc ${WORKSPACE}/yasm-*-solaris*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
 
       - shell: | 
+          test -d /usr/xpg4/bin && PATH=/usr/xpg4/bin:$PATH
           test -d ${WORKSPACE}/build/bin && PATH=${WORKSPACE}/build/bin:$PATH
           export PATH
           GNU_TAR=${GNU_TAR:-tar}
