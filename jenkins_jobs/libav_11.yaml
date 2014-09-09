@@ -1,0 +1,225 @@
+- defaults:
+    name: global
+    description: 'Do not edit this job through the web!'
+    node: master
+    logrotate:
+      numToKeep: 10
+
+- job:
+    name: libav-11-tarball
+    project-type: freestyle
+    defaults: global
+    display-name: 'Libav 11 (tarball)'
+
+    triggers:
+      - pollscm: "H/15 * * * *"
+
+    scm:
+      - git:
+          url: git://git.libav.org/libav.git
+          branches: 
+            - "origin/release/11"
+          browser: gitweb
+          browser-url: http://git.libav.org/?p=libav.git
+          basedir: "libav"
+
+    builders:
+      - shell: |
+          rm -f libav-*.tar.* *.release *.changelog *.md5 *.sha1
+          cd libav
+          VERSION="`cat RELEASE`"
+          echo $VERSION > VERSION
+          git add VERSION
+          git commit VERSION -m"Add VERSION file for standalone builds"
+          git archive -v \
+            --prefix="libav-$VERSION/" \
+            -o ../libav-"${VERSION}".tar.gz \
+            HEAD
+          cp -v Changelog ../libav-"${VERSION}".changelog
+          cp -v doc/RELEASE_NOTES ../libav-"${VERSION}".release
+          zcat ../libav-"${VERSION}".tar.gz | xz > ../libav-"${VERSION}".tar.xz
+      - shell: |
+          for f in *.tar.gz *.tar.xz; do
+            md5sum $f > $f.md5
+            sha1sum $f > $f.sha1
+          done
+              
+    publishers:
+      - archive:
+          artifacts: 'libav-*.*'
+      - trigger:
+          project: libav-11-win
+      - trigger:
+          project: libav-11-fate
+
+
+- job:
+    name: libav-11-fate
+    project-type: matrix
+    display-name: 'Libav 11 (fate)'
+    axes:
+      - axis:
+          type: slave
+          name: label
+          values:
+            - macmini
+            - solaris11
+            - master
+
+    builders:
+      - shell: |
+          rm -f *.tar.*
+          rm -rf libav
+
+      - copyartifact:
+          project: libav-11-tarball
+          filter: '*.tar.gz'
+
+      - conditional-step:
+          condition-kind: shell
+          condition-command: test `uname -s` == 'Darwin'
+          on-evaluation-failure: mark-unstable
+          steps:
+              - copyartifact:
+                  project: yasm-osx
+                  filter: '*.tar.gz'
+              - shell: |
+                  GNU_TAR=${GNU_TAR:-tar}
+                  mkdir -p ${WORKSPACE}/build
+                  cd ${WORKSPACE}/build
+                  gzip -dc ${WORKSPACE}/yasm-*-darwin*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
+
+      - conditional-step:
+          condition-kind: shell
+          condition-command: test `uname -s` == 'SunOS'
+          on-evaluation-failure: mark-unstable
+          steps:
+              - copyartifact:
+                  project: yasm-sol
+                  filter: '*.tar.gz'
+              - shell: |
+                  GNU_TAR=${GNU_TAR:-gtar}
+                  mkdir -p ${WORKSPACE}/build
+                  cd ${WORKSPACE}/build
+                  gzip -dc ${WORKSPACE}/yasm-*-solaris*.tar.gz | ${GNU_TAR} --strip-components=2 -xvf -
+
+      - shell: | 
+          test -d /usr/xpg4/bin && PATH=/usr/xpg4/bin:$PATH
+          test -d ${WORKSPACE}/build/bin && PATH=${WORKSPACE}/build/bin:$PATH
+          export PATH
+          GNU_TAR=${GNU_TAR:-tar}
+          MAKE=${MAKE:-make}
+          mkdir -p libav
+          ${GNU_TAR} --strip-components=1 -C libav -xvf libav*.tar.gz
+          cd libav
+          ./configure --enable-gpl $(u=`uname -s`; if test $u = SunOS; then echo --extra-libs=/usr/lib/values-xpg6.o; fi)
+          mkdir -p ../fate-samples
+          ${MAKE} fate-rsync SAMPLES=$(readlink -f ../fate-samples)
+          ${MAKE}
+          ${MAKE} fate SAMPLES=$(readlink -f ../fate-samples)
+
+
+- job:
+    name: libav-11-win
+    project-type: matrix
+    display-name: 'Libav 11 (windows binaries)'
+    axes:
+      - axis:
+          type: slave
+          name: label
+          values:
+            - gentoo-win32-crossbuilder
+      - axis:
+          type: user-defined
+          name: FLAVOR
+          values:
+            - win32
+            - win64
+
+    builders:
+      - shell: | 
+          rm -f *.tar.*
+          rm -rf libav-*
+
+      - copyartifact:
+          project: libav-11-tarball
+          filter: '*.tar.xz'
+          
+      - shell: | 
+          rm -f libav-*.7z
+          tar xvf *.tar.xz
+          rm *.tar.xz
+          cd libav-*
+
+          COMMON_CONFIG="--enable-runtime-cpudetect \
+                         --enable-shared \
+                         --enable-cross-compile \
+                         --enable-w32threads \
+                         --prefix=/usr \
+                         --target-os=mingw32 \
+                         --enable-memalign-hack \
+                         --enable-gpl \
+                         --enable-version3 \
+                         --enable-libmp3lame \
+                         --enable-libopus \
+                         --enable-librtmp \
+                         --enable-libvo-aacenc \
+                         --enable-libvorbis \
+                         --enable-libvpx \
+                         --enable-libx264 \
+                         "
+
+          if [[ $FLAVOR == "win32" ]]; then
+             #ROOT=/usr/mingw32/
+             #CONFIG="--enable-w32threads --cross-prefix=mingw32- --arch=i686 --sysroot=${ROOT} $COMMON_CONFIG"
+             ROOT=/usr/i686-w64-mingw32/
+             CONFIG="--cross-prefix=i686-w64-mingw32- --arch=i686 --sysroot=${ROOT} $COMMON_CONFIG"
+          elif [[ $FLAVOR == "win64" ]]; then
+             ROOT=/usr/x86_64-w64-mingw32/
+             CONFIG="--cross-prefix=x86_64-w64-mingw32- --arch=x86_64 --sysroot=${ROOT} $COMMON_CONFIG"
+          elif [[ $FLAVOR == "win32-pthreads" ]]; then
+             ROOT=/usr/i686-w64-mingw32/
+             CONFIG="--cross-prefix=i686-w64-mingw32- --arch=i686 --target-os=mingw32 --sysroot=${ROOT} $COMMON_CONFIG"
+          elif [[ $FLAVOR == "win64-pthreads" ]]; then
+             ROOT=/usr/x86_64-w64-mingw32/
+             CONFIG="--cross-prefix=x86_64-w64-mingw32- --arch=x86_64 --sysroot=${ROOT} $COMMON_CONFIG"
+          else
+            echo "Unsupported configuration: $FLAVOR"
+            exit 1
+          fi
+
+          VERSION=`cat VERSION`
+          DESTDIR="${TMPDIR-/tmp}/$FLAVOR"
+          NAME="libav-$FLAVOR-$VERSION"
+
+          PKG_CONFIG_SYSROOT_DIR=${ROOT}
+          PKG_CONFIG_PATH=${ROOT}/usr/lib/pkgconfig/
+
+          export PKG_CONFIG_PATH PKG_CONFIG_SYSROOT_DIR
+
+          rm -rf ${DESTDIR}
+          SRCROOT=`pwd`
+
+          ${SRCROOT}/configure $CONFIG || ( \
+          echo "==========================" && \
+          echo "last 50 lines of config.log" && \
+          tail -50 config.log && \
+          echo "==========================" && \
+          exit 1)
+
+          make V=1 -j$(getconf _NPROCESSORS_ONLN)
+          make V=1 DESTDIR=$DESTDIR install
+          cp -av ${ROOT}/usr/bin/*.dll ${DESTDIR}/usr/bin
+          cp -v ${SRCROOT}/VERSION ${DESTDIR}
+          cp -av ${ROOT}/usr/include/{pthread.h,semaphore.h} ${DESTDIR}/usr/include || true  # this step may fail in some variants
+
+          # save some space
+          make clean
+          cd ${SRCROOT}/..
+
+          7z a libav-$VERSION-$FLAVOR.7z ${DESTDIR}
+          rm -rf ${DESTDIR}
+
+    publishers:
+      - archive:
+          artifacts: 'libav-*.7z'
