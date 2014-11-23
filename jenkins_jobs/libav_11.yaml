@@ -162,7 +162,6 @@
                          --enable-version3 \
                          --enable-libmp3lame \
                          --enable-libopus \
-                         --enable-librtmp \
                          --enable-libvo-aacenc \
                          --enable-libvorbis \
                          --enable-libvpx \
