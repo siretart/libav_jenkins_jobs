@@ -151,7 +151,22 @@
           rm *.tar.xz
           cd libav-*
 
-          COMMON_CONFIG="--enable-runtime-cpudetect --enable-cross-compile --enable-w32threads --prefix=/usr --target-os=mingw32 --enable-gpl --enable-version3 --enable-librtmp --enable-libx264 --enable-libvorbis --enable-libvo-aacenc --enable-memalign-hack --enable-shared --enable-libvpx --enable-libmp3lame"
+          COMMON_CONFIG="--enable-runtime-cpudetect \
+                         --enable-cross-compile \
+                         --enable-w32threads \
+                         --prefix=/usr \
+                         --target-os=mingw32 \
+                         --enable-gpl \
+                         --enable-version3 \
+                         --enable-librtmp \
+                         --enable-libx264 \
+                         --enable-libvorbis \
+                         --enable-libvo-aacenc \
+                         --enable-memalign-hack \
+                         --enable-shared \
+                         --enable-libvpx \
+                         --enable-libmp3lame \
+                         "
 
           if [[ $FLAVOR == "win32" ]]; then
              #ROOT=/usr/mingw32/
